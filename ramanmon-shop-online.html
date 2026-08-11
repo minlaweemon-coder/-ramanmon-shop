@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAMANMON SHOP</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#151515;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans Myanmar",Arial,sans-serif}
+header{background:#111;color:#fff;padding:13px 15px;position:sticky;top:0;z-index:10}.top{max-width:1050px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:8px}.logo{font-size:20px;font-weight:800}.btn{border:0;border-radius:10px;padding:10px 13px;font-weight:800}.cart{background:#f5a400}.admin{background:#fff;color:#111}
+.hero{background:linear-gradient(135deg,#111827,#35445a);color:#fff;padding:38px 17px}.heroIn{max-width:1050px;margin:auto}.hero h1{font-size:31px;margin:0 0 8px}.hero p{line-height:1.9;margin:0;color:#e5e7eb}
+.wrap{max-width:1050px;margin:auto;padding:16px}.search{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px}.cats{display:flex;gap:8px;overflow:auto;margin:10px 0}.cat{white-space:nowrap;background:#fff;border:0;border-radius:20px;padding:9px 14px;font-weight:700}.cat.on{background:#111;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px #0001}.pic{width:100%;aspect-ratio:1;object-fit:cover;background:#eee}.info{padding:12px}.name{font-weight:800;line-height:1.5}.price{font-size:18px;font-weight:800;margin:6px 0 10px}.buy{width:100%;background:#111;color:#fff;border:0;border-radius:9px;padding:11px;font-weight:800}
+.panel{display:none;background:#fff;border-radius:14px;padding:16px;margin:16px auto;box-shadow:0 2px 12px #0001}.panel.show{display:block}.field{margin:9px 0}.field label{display:block;font-weight:700;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;font:inherit}.primary{background:#111;color:#fff;width:100%;padding:12px;border:0;border-radius:9px;font-weight:800}.danger{background:#fee2e2;color:#b91c1c;border:0;border-radius:8px;padding:7px;font-weight:700}.adminrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #eee}.thumb{width:50px;height:50px;object-fit:cover;border-radius:7px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:50}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-height:90vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px}.notice{padding:10px;border-radius:9px;background:#eef2ff;margin:8px 0;font-size:14px}.status{font-size:13px;margin:6px 0}
+footer{text-align:center;color:#777;padding:30px}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}.wrap{padding:10px}.hero{padding:32px 14px}.hero h1{font-size:27px}.name{font-size:14px}.price{font-size:16px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="logo">RAMANMON SHOP</div><div><button class="btn admin" onclick="toggleAdmin()">⚙️ Admin</button> <button class="btn cart" onclick="openCart()">🛒 <span id="cc">0</span></button></div></div></header>
+
+<section class="hero"><div class="heroIn"><h1>RAMANMON SHOP</h1><p>ဆိုင်ကယ်ပစ္စည်းနှင့် ထိုင်းပစ္စည်းများကို Online မှာ ရွေးချယ်ဝယ်ယူနိုင်ပါပြီ။</p></div></section>
+
+<main class="wrap">
+<input id="search" class="search" placeholder="🔍 ပစ္စည်းရှာရန်..." oninput="render()">
+<div class="cats">
+<button class="cat on" onclick="setCat('အားလုံး',this)">အားလုံး</button>
+<button class="cat" onclick="setCat('အိတ်ဇော',this)">🏍️ အိတ်ဇော</button>
+<button class="cat" onclick="setCat('Shock',this)">🔧 Shock</button>
+<button class="cat" onclick="setCat('ထိုင်ခုံ',this)">💺 ထိုင်ခုံ</button>
+<button class="cat" onclick="setCat('Radiator',this)">⚙️ ရေတိုင်ကီ</button>
+<button class="cat" onclick="setCat('ထိုင်းပစ္စည်း',this)">🇹🇭 ထိုင်းပစ္စည်း</button>
+</div>
+<div id="grid" class="grid"></div>
+
+<section id="adminPanel" class="panel">
+<h2>⚙️ Online Admin</h2>
+<div id="authArea">
+<div class="notice">Admin အဖြစ် ပစ္စည်းထည့်/ဖျက်ဖို့ Supabase account နဲ့ Login ဝင်ရပါမယ်။</div>
+<div class="field"><label>Email</label><input id="email" type="email" placeholder="admin@email.com"></div>
+<div class="field"><label>Password</label><input id="password" type="password" placeholder="Password"></div>
+<button class="primary" onclick="login()">Login</button>
+<div style="height:7px"></div><button class="btn" onclick="signup()">Account အသစ်ဖန်တီးမယ်</button>
+<div id="authMsg" class="status"></div>
+</div>
+<div id="adminArea" style="display:none">
+<p>Login ဝင်ထားပါတယ် ✅ <button class="btn" onclick="logout()">Logout</button></p>
+<hr>
+<h3>➕ ပစ္စည်းအသစ်ထည့်</h3>
+<div class="field"><label>ပစ္စည်းအမည်</label><input id="pn"></div>
+<div class="field"><label>Category</label><select id="pc"><option>အိတ်ဇော</option><option>Shock</option><option>ထိုင်ခုံ</option><option>Radiator</option><option>ထိုင်းပစ္စည်း</option><option>ဆိုင်ကယ်ပစ္စည်း</option></select></div>
+<div class="field"><label>ဈေးနှုန်း (ကျပ်)</label><input id="pp" type="number"></div>
+<div class="field"><label>Stock</label><input id="ps" type="number" value="10"></div>
+<div class="field"><label>ပစ္စည်းပုံ</label><input id="pi" type="file" accept="image/*"></div>
+<button class="primary" onclick="addProduct()">➕ Online Database ထဲထည့်မယ်</button>
+<hr><h3>📦 လက်ရှိပစ္စည်းများ</h3><div id="alist"></div>
+<hr><h3>🧾 Orders</h3><div id="orders"></div>
+</div>
+</section>
+</main>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeCart()"><div class="sheet">
+<h2>🛒 Order</h2><div id="cartItems"></div>
+<div class="field"><label>အမည်</label><input id="cn"></div>
+<div class="field"><label>ဖုန်း</label><input id="cp" type="tel"></div>
+<div class="field"><label>ပို့ရန်လိပ်စာ</label><textarea id="ca" rows="3"></textarea></div>
+<button class="primary" onclick="placeOrder()">Order တင်မယ်</button>
+<button class="btn" style="margin-top:8px" onclick="closeCart()">ပိတ်မယ်</button>
+<div id="orderMsg" class="status"></div>
+</div></div>
+
+<footer>© 2026 RAMANMON SHOP</footer>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL="https://ezrfyjbabhutbcmanwub.supabase.co";
+let KEY=localStorage.getItem("ramanmon_publishable_key")||"";
+let sb=null, products=[], cart=[], cat="အားလုံး";
+
+function init(){
+ if(!KEY){
+   KEY=prompt("RAMANMON SHOP Supabase Publishable Key (sb_publishable_...) ထည့်ပါ။");
+   if(KEY){localStorage.setItem("ramanmon_publishable_key",KEY);}
+ }
+ if(KEY) sb=createClient(SUPABASE_URL,KEY);
+ load();
+}
+window.setCat=(c,b)=>{cat=c;document.querySelectorAll(".cat").forEach(x=>x.classList.remove("on"));b.classList.add("on");render()};
+window.render=render;
+window.toggleAdmin=()=>document.getElementById("adminPanel").classList.toggle("show");
+window.openCart=()=>{renderCart();document.getElementById("modal").classList.add("show")};
+window.closeCart=()=>document.getElementById("modal").classList.remove("show");
+
+async function load(){
+ if(!sb){document.getElementById("grid").innerHTML="<div class='notice'>Supabase key မထည့်ရသေးပါ။</div>";return}
+ const {data,error}=await sb.from("products").select("*").eq("active",true).order("created_at",{ascending:false});
+ if(error){document.getElementById("grid").innerHTML="<div class='notice'>Database ချိတ်မရပါ။ Supabase key/RLS ကိုစစ်ပါ။</div>";return}
+ products=data||[]; render();
+ const {data:u}=await sb.auth.getUser(); updateAuth(u?.user);
+}
+function render(){
+ const q=(document.getElementById("search")?.value||"").toLowerCase();
+ const list=products.filter(p=>(cat==="အားလုံး"||p.category===cat)&&p.name.toLowerCase().includes(q));
+ document.getElementById("grid").innerHTML=list.map(p=>`<article class="card"><img class="pic" src="${p.image_url||'https://placehold.co/600x600?text=RAMANMON+SHOP'}"><div class="info"><div class="name">${esc(p.name)}</div><div class="price">${p.price==null?"ဈေးစုံစမ်းရန်":Number(p.price).toLocaleString()+" ကျပ်"}</div><button class="buy" onclick="addCart(${p.id})">🛒 Cart ထဲထည့်မယ်</button></div></article>`).join("")||"<div class='notice'>ပစ္စည်းမတွေ့ပါ။</div>";
+}
+window.addCart=id=>{const p=products.find(x=>x.id===id);if(p){cart.push(p);document.getElementById("cc").textContent=cart.length;alert("Cart ထဲထည့်ပြီးပါပြီ ✅")}};
+function renderCart(){
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map((p,i)=>`<div class="adminrow"><span>${esc(p.name)} — ${p.price==null?"ဈေးစုံစမ်းရန်":Number(p.price).toLocaleString()+" ကျပ်"}</span><button class="danger" onclick="removeCart(${i})">ဖျက်</button></div>`).join(""):"<p>Cart မရှိသေးပါ။</p>";
+}
+window.removeCart=i=>{cart.splice(i,1);document.getElementById("cc").textContent=cart.length;renderCart()};
+window.placeOrder=async()=>{
+ if(!cart.length)return alert("Cart ထဲမှာ ပစ္စည်းမရှိသေးပါ။");
+ const name=cn.value.trim(),phone=cp.value.trim(),address=ca.value.trim();
+ if(!name||!phone||!address)return alert("အမည်၊ ဖုန်း၊ လိပ်စာ ဖြည့်ပါ။");
+ const total=cart.reduce((s,p)=>s+(Number(p.price)||0),0);
+ const items=cart.map(p=>({id:p.id,name:p.name,price:p.price}));
+ const {error}=await sb.from("orders").insert({customer_name:name,phone,address,items,total});
+ if(error){orderMsg.textContent="Order မတင်နိုင်ပါ: "+error.message;return}
+ cart=[];cc.textContent="0";orderMsg.textContent="Order တင်ပြီးပါပြီ ✅ RAMANMON SHOP မှ ဆက်သွယ်ပါမယ်။";
+};
+window.login=async()=>{
+ const {error}=await sb.auth.signInWithPassword({email:email.value,password:password.value});
+ authMsg.textContent=error?error.message:"Login အောင်မြင်ပါပြီ ✅";
+ const {data:u}=await sb.auth.getUser();updateAuth(u?.user);load();
+};
+window.signup=async()=>{
+ const {data,error}=await sb.auth.signUp({email:email.value,password:password.value});
+ authMsg.textContent=error?error.message:"Account ဖန်တီးပြီးပါပြီ။ Email confirmation လိုနိုင်ပါတယ်။";
+ if(data?.user) updateAuth(data.user);
+};
+window.logout=async()=>{await sb.auth.signOut();updateAuth(null)};
+function updateAuth(u){
+ authArea.style.display=u?"none":"block";adminArea.style.display=u?"block":"none";
+ if(u) renderAdmin();
+}
+window.addProduct=async()=>{
+ const user=(await sb.auth.getUser()).data.user;if(!user)return alert("အရင် Login ဝင်ပါ။");
+ const name=pn.value.trim(),category=pc.value,price=Number(pp.value)||null,stock=Number(ps.value)||0,file=pi.files[0];
+ if(!name)return alert("ပစ္စည်းအမည်ထည့်ပါ။");
+ let image_url=null;
+ if(file){image_url=await readFile(file)}
+ const {error}=await sb.from("products").insert({name,category,price,image_url,stock,active:true});
+ if(error){alert(error.message);return}
+ pn.value="";pp.value="";pi.value="";alert("Online Database ထဲ ထည့်ပြီးပါပြီ ✅");await load();renderAdmin();
+};
+async function renderAdmin(){
+ const {data,error}=await sb.from("products").select("*").order("created_at",{ascending:false});
+ alist.innerHTML=error?"မရပါ။":(data||[]).map(p=>`<div class="adminrow"><div style="display:flex;align-items:center;gap:8px"><img class="thumb" src="${p.image_url||'https://placehold.co/100x100'}"><span>${esc(p.name)}<br><small>${Number(p.price||0).toLocaleString()} ကျပ်</small></span></div><button class="danger" onclick="delProduct(${p.id})">ဖျက်</button></div>`).join("");
+ const {data:os}=await sb.from("orders").select("*").order("created_at",{ascending:false});
+ orders.innerHTML=(os||[]).map(o=>`<div class="notice"><b>${esc(o.customer_name)}</b> · ${esc(o.phone)}<br>${esc(o.address)}<br>${Number(o.total).toLocaleString()} ကျပ် · ${esc(o.status)}</div>`).join("")||"Order မရှိသေးပါ။";
+}
+window.delProduct=async id=>{if(!confirm("ဒီပစ္စည်းဖျက်မလား?"))return;const {error}=await sb.from("products").delete().eq("id",id);if(error)alert(error.message);else{await load();renderAdmin()}};
+function readFile(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+sb?.auth.onAuthStateChange((_e,s)=>updateAuth(s?.user));
+init();
+</script>
+</body>
+</html>
